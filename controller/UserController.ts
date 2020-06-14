@@ -7,8 +7,13 @@ const users = db.collection("users");
 export default {
   // get all the user list
   async index(ctx: any) {
-    const data = await users.find();
-    ctx.response.body = data;
+    try {
+      const data = await users.find();
+      ctx.response.body = data;
+    } catch (error) {
+      ctx.response.body = null;
+      ctx.response.status = 500;
+    }
   },
 
   // get user by ID
@@ -35,12 +40,70 @@ export default {
   // insert user in DB
   async store(ctx: any) {
     try {
+      if (!ctx.request.hasBody) {
+        // when request body do not have data
+        ctx.response.body = { error: "please provide required data." };
+        ctx.response.status = 400;
+        return;
+      }
       // acessing data from the request body
+      //       const { value } = body;
+      //       const id = await users.insertOne({
+      // 	      value,
+      // });
       let body: any = await ctx.request.body();
       const { name, email, password, avatar, date } = body.value;
-      console.log(name, password, avatar, date, email);
-
-      // inserting into the db
+      // check for name
+      if (!name) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "Name is required ",
+          },
+        };
+        return;
+      }
+      // check for email
+      if (!email) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "email is required ",
+          },
+        };
+        return;
+      }
+      // check for password
+      if (!password) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "password is required ",
+          },
+        };
+        return;
+      }
+      // check for date
+      if (!date) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "date is required ",
+          },
+        };
+        return;
+      }
+      // check for avatar
+      if (!avatar) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "avatar is required ",
+          },
+        };
+        return;
+      }
+      //       inserting into the db
       const id = await users.insertOne({
         name,
         password,
@@ -50,8 +113,8 @@ export default {
       });
 
       // sending the response
-      ctx.response.body = id;
-      ctx.response.status = 201;
+      ctx.response.body = { message: "Inserted." };
+      ctx.response.status = 200;
     } // when the insertion fails
     catch (e) {
       ctx.response.body = null;
@@ -59,6 +122,108 @@ export default {
       console.log(e);
     }
   },
-  update(ctx: any) {},
-  delete(ctx: any) {},
+
+  // update user
+  async update(ctx: any) {
+    try {
+      if (!ctx.request.hasBody) {
+        // when request body do not have data
+        ctx.response.body = { error: "please provide required data." };
+        ctx.response.status = 400;
+        return;
+      }
+      let body: any = await ctx.request.body();
+      const { name, email, password, avatar, date } = body.value;
+      // check for name
+      if (!name) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "Name is required ",
+          },
+        };
+        return;
+      }
+      // check for email
+      if (!email) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "email is required ",
+          },
+        };
+        return;
+      }
+      // check for password
+      if (!password) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "password is required ",
+          },
+        };
+        return;
+      }
+      // check for date
+      if (!date) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "date is required ",
+          },
+        };
+        return;
+      }
+      // check for avatar
+      if (!avatar) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "avatar is required ",
+          },
+        };
+        return;
+      }
+      //       inserting into the db
+      const id = await users.updateOne({ _id: { $oid: ctx.params.id } }, {
+        $set: {
+          name,
+          password,
+          avatar,
+          date,
+          email,
+        },
+      });
+
+      // sending the response
+      ctx.response.body = { message: "Updated" };
+      ctx.response.status = 200;
+    } catch (error) {
+      ctx.response.body = null;
+      ctx.response.status = 500;
+    }
+  },
+
+  // delete user
+  async delete(ctx: any) {
+    const id = ctx.params.id;
+    try {
+      if (!id) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: "Id is required ",
+          },
+        };
+        return;
+      }
+      console.log(id);
+
+      await users.deleteOne({ _id: { $oid: id } });
+      ctx.response.status = 204;
+    } catch (error) {
+      ctx.response.body = null;
+      ctx.response.status = 500;
+    }
+  },
 };
