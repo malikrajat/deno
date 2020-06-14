@@ -65,7 +65,6 @@ export default {
     catch (e) {
       ctx.response.body = null;
       ctx.response.status = 500;
-      console.log(e);
     }
   },
 
