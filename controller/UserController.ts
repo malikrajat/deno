@@ -1,5 +1,7 @@
 import db from "../config/db.ts";
 import Validation from "../validation.ts";
+import { ObjectId } from "https://deno.land/x/mongo@v0.8.0/mod.ts";
+
 // Declare the collections here. Here we are using only one collection (i.e friends).
 const users = db.collection("users");
 
@@ -22,7 +24,7 @@ export default {
       // accessing the id of friend from the request params
       let id: string = ctx.params.id;
       // searching the db for a friend with the given id
-      const data: any = await users.findOne({ _id: { "$oid": id } });
+      const data: any = await users.findOne({ _id: ObjectId(id) });
       if (data) { // Response if friend is found
         ctx.response.body = data;
         ctx.response.status = 200;
@@ -32,7 +34,7 @@ export default {
       }
     } // if some error occured while searching the db
     catch (e) {
-      ctx.response.body = null;
+      ctx.response.body = { message: "There is user with this id." };
       ctx.response.status = 500;
     }
   },
@@ -67,7 +69,7 @@ export default {
         const { value } = body;
         // update into the db
         const id = await users.updateOne(
-          { _id: { $oid: ctx.params.id } },
+          { _id: ObjectId(ctx.params.id) },
           { $set: { value } },
         );
         // sending the response
@@ -93,12 +95,10 @@ export default {
         };
         return;
       }
-      console.log(id);
-
-      await users.deleteOne({ _id: { $oid: id } });
+      await users.deleteOne({ _id: ObjectId(id) });
       ctx.response.status = 204;
-    } catch (error) {
-      ctx.response.body = null;
+    } catch (e) {
+      ctx.response.body = { message: "There is user with this id." };
       ctx.response.status = 500;
     }
   },
