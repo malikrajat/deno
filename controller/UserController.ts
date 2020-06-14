@@ -41,22 +41,12 @@ export default {
   async store(ctx: any) {
     try {
       // acessing data from the request body
-      //       const { value } = body;
-      //       const id = await users.insertOne({
-      // 	      value,
-      // });
+
       const validationCheck = await Validation.Validate(ctx);
       if (validationCheck) {
         let body: any = await ctx.request.body();
-        const { name, email, password, avatar, date } = body.value;
-        //       inserting into the db
-        const id = await users.insertOne({
-          name,
-          password,
-          avatar,
-          date,
-          email,
-        });
+        const { value } = body;
+        const id = await users.insertOne({ value });
         // sending the response
         ctx.response.body = { message: "Inserted." };
         ctx.response.status = 200;
@@ -71,78 +61,19 @@ export default {
   // update user
   async update(ctx: any) {
     try {
-      if (!ctx.request.hasBody) {
-        // when request body do not have data
-        ctx.response.body = { error: "please provide required data." };
-        ctx.response.status = 400;
-        return;
+      const validationCheck = await Validation.Validate(ctx);
+      if (validationCheck) {
+        let body: any = await ctx.request.body();
+        const { value } = body;
+        // update into the db
+        const id = await users.updateOne(
+          { _id: { $oid: ctx.params.id } },
+          { $set: { value } },
+        );
+        // sending the response
+        ctx.response.body = { message: "Updated" };
+        ctx.response.status = 200;
       }
-      let body: any = await ctx.request.body();
-      const { name, email, password, avatar, date } = body.value;
-      // check for name
-      if (!name) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "Name is required ",
-          },
-        };
-        return;
-      }
-      // check for email
-      if (!email) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "email is required ",
-          },
-        };
-        return;
-      }
-      // check for password
-      if (!password) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "password is required ",
-          },
-        };
-        return;
-      }
-      // check for date
-      if (!date) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "date is required ",
-          },
-        };
-        return;
-      }
-      // check for avatar
-      if (!avatar) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "avatar is required ",
-          },
-        };
-        return;
-      }
-      //       inserting into the db
-      const id = await users.updateOne({ _id: { $oid: ctx.params.id } }, {
-        $set: {
-          name,
-          password,
-          avatar,
-          date,
-          email,
-        },
-      });
-
-      // sending the response
-      ctx.response.body = { message: "Updated" };
-      ctx.response.status = 200;
     } catch (error) {
       ctx.response.body = null;
       ctx.response.status = 500;
