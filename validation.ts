@@ -6,7 +6,7 @@ export default {
     let status;
     let body: any = await ctx.request.body();
     const { value } = body;
-    const fields = ["name", "email", "password", "avatar", "date"];
+    const fields = ["name", "email", "password", "avatar"];
     for (let index = 0; index < fields.length; index++) {
       const element = value[fields[index]];
       if (!element || trim(element).length < 1) {
