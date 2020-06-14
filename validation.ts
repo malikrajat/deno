@@ -1,56 +1,21 @@
+import { trim } from "https://deno.land/x/dotenv/util.ts";
+
 export default {
   async Validate(ctx: any) {
     let body: any = await ctx.request.body();
-    const { name, email, password, avatar, date } = body.value;
-    // check for name
-    if (!name) {
-      ctx.response.status = 422;
-      ctx.response.body = {
-        error: {
-          message: "Name is required ",
-        },
-      };
-      return;
-    }
-    // check for email
-    if (!email) {
-      ctx.response.status = 422;
-      ctx.response.body = {
-        error: {
-          message: "email is required ",
-        },
-      };
-      return;
-    }
-    // check for password
-    if (!password) {
-      ctx.response.status = 422;
-      ctx.response.body = {
-        error: {
-          message: "password is required ",
-        },
-      };
-      return;
-    }
-    // check for date
-    if (!date) {
-      ctx.response.status = 422;
-      ctx.response.body = {
-        error: {
-          message: "date is required ",
-        },
-      };
-      return;
-    }
-    // check for avatar
-    if (!avatar) {
-      ctx.response.status = 422;
-      ctx.response.body = {
-        error: {
-          message: "avatar is required ",
-        },
-      };
-      return;
+    const { value } = body;
+    const fields = ["name", "email", "password", "avatar", "date"];
+    for (let index = 0; index < fields.length; index++) {
+      const element = trim(value[fields[index]]);
+      if (!element || element.length < 1) {
+        ctx.response.status = 422;
+        ctx.response.body = {
+          error: {
+            message: `${fields[index]} is required `,
+          },
+        };
+        return false;
+      }
     }
     return true;
   },
