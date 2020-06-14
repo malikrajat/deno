@@ -1,5 +1,5 @@
 import db from "../config/db.ts";
-
+import Validation from "../validation.ts";
 // Declare the collections here. Here we are using only one collection (i.e friends).
 const users = db.collection("users");
 
@@ -40,81 +40,27 @@ export default {
   // insert user in DB
   async store(ctx: any) {
     try {
-      if (!ctx.request.hasBody) {
-        // when request body do not have data
-        ctx.response.body = { error: "please provide required data." };
-        ctx.response.status = 400;
-        return;
-      }
       // acessing data from the request body
       //       const { value } = body;
       //       const id = await users.insertOne({
       // 	      value,
       // });
-      let body: any = await ctx.request.body();
-      const { name, email, password, avatar, date } = body.value;
-      // check for name
-      if (!name) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "Name is required ",
-          },
-        };
-        return;
+      const validationCheck = await Validation.Validate(ctx);
+      if (validationCheck) {
+        let body: any = await ctx.request.body();
+        const { name, email, password, avatar, date } = body.value;
+        //       inserting into the db
+        const id = await users.insertOne({
+          name,
+          password,
+          avatar,
+          date,
+          email,
+        });
+        // sending the response
+        ctx.response.body = { message: "Inserted." };
+        ctx.response.status = 200;
       }
-      // check for email
-      if (!email) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "email is required ",
-          },
-        };
-        return;
-      }
-      // check for password
-      if (!password) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "password is required ",
-          },
-        };
-        return;
-      }
-      // check for date
-      if (!date) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "date is required ",
-          },
-        };
-        return;
-      }
-      // check for avatar
-      if (!avatar) {
-        ctx.response.status = 422;
-        ctx.response.body = {
-          error: {
-            message: "avatar is required ",
-          },
-        };
-        return;
-      }
-      //       inserting into the db
-      const id = await users.insertOne({
-        name,
-        password,
-        avatar,
-        date,
-        email,
-      });
-
-      // sending the response
-      ctx.response.body = { message: "Inserted." };
-      ctx.response.status = 200;
     } // when the insertion fails
     catch (e) {
       ctx.response.body = null;
