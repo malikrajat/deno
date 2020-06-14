@@ -1,6 +1,7 @@
 import db from "../config/db.ts";
 import Validation from "../validation.ts";
 import { ObjectId } from "https://deno.land/x/mongo@v0.8.0/mod.ts";
+import hashPassword from "../utils/hashPassword.ts";
 
 // Declare the collections here. Here we are using only one collection (i.e friends).
 const users = db.collection("users");
@@ -48,6 +49,10 @@ export default {
       if (validationCheck) {
         let body: any = await ctx.request.body();
         const { value } = body;
+        // value.date = new Date().toLocaleString();
+        // value.date = new Date();
+        value.date = parseInt((new Date().getTime() / 1000).toString());
+        value.password = await hashPassword.bcrypt(value.password);
         const id = await users.insertOne({ value });
         // sending the response
         ctx.response.body = { message: "Inserted." };
