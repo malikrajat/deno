@@ -6,8 +6,8 @@ export default {
     const { value } = body;
     const fields = ["name", "email", "password", "avatar", "date"];
     for (let index = 0; index < fields.length; index++) {
-      const element = trim(value[fields[index]]);
-      if (!element || element.length < 1) {
+      const element = value[fields[index]];
+      if (!element || trim(element).length < 1) {
         ctx.response.status = 422;
         ctx.response.body = {
           error: {
