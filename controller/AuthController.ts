@@ -19,8 +19,19 @@ export default {
           user.password,
           value.password,
         );
+        if (passwordMatched) {
+          ctx.response.body = user;
+        } else {
+          ctx.response.body = {
+            error: "Password does't match with our records.",
+          };
+        }
+      } else {
+        ctx.response.body = {
+          error: "Credentials does't match with our records.",
+        };
       }
-      ctx.response.body = passwordMatched;
+      // ctx.response.body = passwordMatched;
     }
   },
 };
