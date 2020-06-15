@@ -2,6 +2,8 @@
 import { Application } from "https://deno.land/x/oak/mod.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 
+import token from "./utils/token.ts";
+
 // importing the router
 import router from "./routes.ts";
 
@@ -11,6 +13,21 @@ import notFound from "./404.ts";
 const env = config();
 const app = new Application();
 app.use(router.routes());
+app.use(async (ctx: any, next) => {
+  const authorization = ctx.request.headers.get("Authorization");
+  if (!authorization) {
+    ctx.response.status = 401;
+    ctx.response.body = { error: "Unauthrized" };
+    return;
+  }
+  const headerToken = authorization.replace("Bearer ", "");
+  const isTokenValida = await token.validate(headerToken);
+  if (!isTokenValida) {
+    ctx.response.status = 401;
+    ctx.response.body = { error: "Unauthrized" };
+  }
+  await next();
+});
 app.use(router.allowedMethods());
 app.use(notFound);
 
