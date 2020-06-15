@@ -13,8 +13,14 @@ export default {
     const value = await validation.LoginValidate(ctx);
     if (value) {
       const user = await users.findOne({ email: value.email });
-      console.log(user);
-      ctx.response.body = user;
+      let passwordMatched = false;
+      if (user) {
+        passwordMatched = await hashPassword.verify(
+          user.password,
+          value.password,
+        );
+      }
+      ctx.response.body = passwordMatched;
     }
   },
 };
