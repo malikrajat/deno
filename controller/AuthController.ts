@@ -3,6 +3,7 @@ import Validation from "../validation.ts";
 import { ObjectId } from "https://deno.land/x/mongo@v0.8.0/mod.ts";
 import hashPassword from "../utils/hashPassword.ts";
 import validation from "../validation.ts";
+import token from "../utils/token.ts";
 
 // Declare the collections here. Here we are using only one collection (i.e friends).
 const users = db.collection("users");
@@ -34,6 +35,6 @@ export default {
       };
       return;
     }
-    ctx.response.body = user;
+    ctx.response.body = token.generateToken();
   },
 };
