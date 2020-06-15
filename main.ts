@@ -1,11 +1,11 @@
 // importing the oak from the url.
 import { Application } from "https://deno.land/x/oak/mod.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
-
-import token from "./utils/token.ts";
+import authModdleware from "./middleware/auth.ts";
 
 // importing the router
-import router from "./routes.ts";
+import router from "./routes/normal.ts";
+import protectedRouter from "./routes/protected.ts";
 
 // importing the controllers
 import notFound from "./404.ts";
@@ -15,26 +15,9 @@ const app = new Application();
 // normal routing
 app.use(router.routes());
 //jwt validation
-app.use(async (ctx: any, next) => {
-  const authorization = ctx.request.headers.get("Authorization");
-  if (!authorization) {
-    ctx.response.status = 401;
-    ctx.response.body = { error: "Unauthrized" };
-    return;
-  }
-  const headerToken = authorization.replace("Bearer ", "");
-  const isTokenValida = await token.validate(headerToken);
-  if (!isTokenValida) {
-    ctx.response.status = 401;
-    ctx.response.body = { error: "Unauthrized" };
-    return;
-  }
-  await next();
-});
+app.use((ctx, next) => authModdleware.authorized(ctx, next));
 //proceted route
-app.use((ctx: any) => {
-  ctx.response.body = "I am protected Route.";
-});
+app.use(protectedRouter.routes());
 app.use(router.allowedMethods());
 app.use(notFound);
 
