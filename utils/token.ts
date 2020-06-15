@@ -1,4 +1,8 @@
-import { validateJwt } from "https://deno.land/x/djwt/validate.ts";
+import {
+  validateJwt,
+  parseAndDecode,
+  validateJwtObject,
+} from "https://deno.land/x/djwt/validate.ts";
 import {
   makeJwt,
   setExpiration,
@@ -6,19 +10,22 @@ import {
   Payload,
 } from "https://deno.land/x/djwt/create.ts";
 const key = "your-secret";
-const payload: Payload = {
-  iss: "rajat",
-  exp: setExpiration(new Date().getTime() + 60000 * 60),
-};
 const header: Jose = {
   alg: "HS256",
   typ: "JWT",
 };
 export default {
-  generateToken(): string {
+  generateToken(userId: string): string {
+    const payload: Payload = {
+      iss: userId,
+      exp: setExpiration(new Date().getTime() + 60000 * 60),
+    };
     return makeJwt({ header, payload, key });
   },
   async validate(jwt: string) {
     return (await validateJwt(jwt, key)).isValid;
+  },
+  fetchUserId(token: string) {
+    return validateJwtObject(parseAndDecode(token)).payload;
   },
 };
