@@ -53,7 +53,7 @@ export default {
         // value.date = new Date();
         value.date = parseInt((new Date().getTime() / 1000).toString());
         value.password = await hashPassword.bcrypt(value.password);
-        const id = await users.insertOne({ value });
+        const id = await users.insertOne({ ...value });
         // sending the response
         ctx.response.body = { message: "Inserted." };
         ctx.response.status = 200;
@@ -75,7 +75,7 @@ export default {
         // update into the db
         const id = await users.updateOne(
           { _id: ObjectId(ctx.params.id) },
-          { $set: { value } },
+          { $set: { ...value } },
         );
         // sending the response
         ctx.response.body = { message: "Updated" };
