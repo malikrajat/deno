@@ -9,8 +9,9 @@ import protectedRouter from "./routes/protected.ts";
 
 // importing the controllers
 import notFound from "./404.ts";
+// const env = Deno.env.toObject(); // to access system env variable
+const { APP_HOST, APP_PORT } = config({ safe: true });
 
-const env = config();
 const app = new Application();
 // normal routing
 app.use(router.routes());
@@ -22,7 +23,7 @@ app.use(router.allowedMethods());
 app.use(notFound);
 
 // Starting the server
-const HOST = env.APP_HOST || "http://localhost:";
-const PORT = +env.APP_PORT || 4000;
+const HOST = APP_HOST || "http://localhost:";
+const PORT = +APP_PORT || 4000;
 console.log(`server is started at ${HOST} ${PORT}`);
 await app.listen({ port: PORT });
