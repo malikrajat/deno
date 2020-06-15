@@ -11,7 +11,8 @@
                                    "net",
                                    "read",
                                    "write",
-                                   "plugin"
+                                   "plugin",
+                                   "env"
                             ]
                      }
               },
