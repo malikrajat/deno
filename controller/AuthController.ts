@@ -11,27 +11,29 @@ const users = db.collection("users");
 export default {
   async login(ctx: any) {
     const value = await validation.LoginValidate(ctx);
-    if (value) {
-      const user = await users.findOne({ email: value.email });
-      let passwordMatched = false;
-      if (user) {
-        passwordMatched = await hashPassword.verify(
-          user.password,
-          value.password,
-        );
-        if (passwordMatched) {
-          ctx.response.body = user;
-        } else {
-          ctx.response.body = {
-            error: "Password does't match with our records.",
-          };
-        }
-      } else {
-        ctx.response.body = {
-          error: "Credentials does't match with our records.",
-        };
-      }
-      // ctx.response.body = passwordMatched;
+    if (!value) {
+      ctx.response.status = 422;
+      ctx.response.body = { error: "Please provide required details." };
+      return;
     }
+    const user = await users.findOne({ email: value.email });
+    if (!user) {
+      ctx.response.status = 422;
+      ctx.response.body = {
+        error: "Password does't match with our records.",
+      };
+      return;
+    }
+    const passwordMatched = await hashPassword.verify(
+      user.password,
+      value.password,
+    );
+    if (!passwordMatched) {
+      ctx.response.body = {
+        error: "Password does't match with our records.",
+      };
+      return;
+    }
+    ctx.response.body = user;
   },
 };
