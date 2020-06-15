@@ -35,6 +35,6 @@ export default {
       };
       return;
     }
-    ctx.response.body = token.generateToken();
+    ctx.response.body = token.generateToken(user._id.$oid);
   },
 };
