@@ -12,7 +12,9 @@ import notFound from "./404.ts";
 
 const env = config();
 const app = new Application();
+// normal routing
 app.use(router.routes());
+//jwt validation
 app.use(async (ctx: any, next) => {
   const authorization = ctx.request.headers.get("Authorization");
   if (!authorization) {
@@ -25,8 +27,13 @@ app.use(async (ctx: any, next) => {
   if (!isTokenValida) {
     ctx.response.status = 401;
     ctx.response.body = { error: "Unauthrized" };
+    return;
   }
   await next();
+});
+//proceted route
+app.use((ctx: any) => {
+  ctx.response.body = "I am protected Route.";
 });
 app.use(router.allowedMethods());
 app.use(notFound);
